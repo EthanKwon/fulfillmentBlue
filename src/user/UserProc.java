@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,8 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import function.CustomerFunction;
 
 
 
@@ -43,6 +46,7 @@ public class UserProc extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		RequestDispatcher rd;
 		HttpSession session = request.getSession();
+		CustomerFunction cf = new CustomerFunction();
 		String action = request.getParameter("action");
 		String message = new String();
 		String url = new String();
@@ -114,11 +118,30 @@ public class UserProc extends HttpServlet {
 			
 			if(result == UserDAO.ID_PASSWORD_MATCH){
 				uDto = uDao.searchById(id);
-				session.setAttribute("userId", id);
-				session.setAttribute("userName", uDto.getName());
+				Cookie myCookie = new Cookie("Blue",id+cf.curTimeFormat());
+				myCookie.setPath("/view");
+				myCookie.setMaxAge(60*60*24);
+				response.addCookie(myCookie);
+				LOG.trace("쿠키 값 : " + myCookie.getValue());
+				session.setAttribute(myCookie.getValue()+"userId",id);
+				session.setAttribute(myCookie.getValue()+"userName",uDto.getName() );
+				session.setAttribute(myCookie.getValue()+"userType",uDto.getuserType() );
 				session.setAttribute("userType", uDto.getuserType());
 				LOG.trace("userId : " + id + ", userName : " + uDto.getName() + ", userType : " + uDto.getuserType());
-				rd = request.getRequestDispatcher("UserProc?action=intoMain");
+				switch(uDto.getuserType()) {
+				case 1:
+					url = "TransProc?action=intoMain";
+					break;
+				case 2:
+					url = "MallProc?action=intoMain";
+					break;
+				case 3:
+					url = "SupplyProc?action=intoMain";
+					break;
+				case 0:
+					url = "AdminProc?action=intoMain";
+				}
+				rd = request.getRequestDispatcher(url);
 				rd.forward(request, response);
 			} else{
 				request.setAttribute("message", errorMessage);
@@ -129,10 +152,17 @@ public class UserProc extends HttpServlet {
 			uDao.close();
 			break;
 		case "logout":
-			session.removeAttribute("userId");
-			session.removeAttribute("userName");
-			session.removeAttribute("userType");
-			
+			Cookie[] cookies = request.getCookies();
+			String cookieId = new String();
+			for (Cookie cookie: cookies) {
+				if (cookie.getName().equals("Blue"))
+					cookieId = cookie.getValue();
+				cookie.setMaxAge(0);
+				response.addCookie(cookie);
+			}
+			session.removeAttribute(cookieId+"userId");
+			session.removeAttribute(cookieId+"userName");
+			session.removeAttribute(cookieId+"userType");
 			response.sendRedirect("login.jsp");
 			break;
 		case"register":

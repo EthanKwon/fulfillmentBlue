@@ -7,16 +7,20 @@ import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import product.*;
-import function.*;
-import supply.*;
+import function.CustomerFunction;
+import product.ProductDAO;
+import product.ProductDTO;
+import supply.SupplyDAO;
+import supply.SupplyDTO;
 
 @WebServlet("/view/AdminProc")
 public class AdminProc extends HttpServlet {
@@ -39,9 +43,21 @@ public class AdminProc extends HttpServlet {
 		//공통 설정 
 		request.setCharacterEncoding("UTF-8");
 		RequestDispatcher rd;
+		HttpSession session = request.getSession();
 		String action = request.getParameter("action");
 		String message = new String();
 		CustomerFunction cf = new CustomerFunction();
+		//쿠키 사용시 
+		String cookieId = new String();
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie: cookies) {
+			LOG.trace("쿠키 정보 : " + cookie.getName() +","+ cookie.getValue());
+			if (cookie.getName().equals("Blue"))
+				cookieId = cookie.getValue();
+		}
+		int userType = (Integer)session.getAttribute(cookieId+"userType");
+		String userName = (String)session.getAttribute(cookieId+"userName");
+		
 		
 		
 		AdminDAO aDao = new AdminDAO();
@@ -149,6 +165,9 @@ public class AdminProc extends HttpServlet {
 			
 			request.setAttribute("thisTotalSalesList", thisTotalSalesList); // 이번년도 그래프 월별 총액 값
 			request.setAttribute("lastTotalSalesList", lastTotalSalesList); // 작년년도 그래프 월별 총액 값
+			
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/adminMain.jsp");
 			rd.forward(request, response);
 			break;
@@ -160,6 +179,7 @@ public class AdminProc extends HttpServlet {
 			LOG.trace("재고 물품 확인");
 			productList = new ArrayList<AdminDTO>();
 			pDtoList = pDao.selectAll();
+			//-------------------------- Adminbiz(1)----------------------------
 			for(ProductDTO product : pDtoList) {
 				aDto = new AdminDTO();
 				aDto.setoQuantity(0); //출고수량이 없을 경우, 0으로 지정
@@ -173,8 +193,11 @@ public class AdminProc extends HttpServlet {
 				LOG.trace("제품 코드 :" + aDto.getpCode() + ", 제품 발주 수량 : "+ aDto.getsQuantity());
 				productList.add(aDto);
 			}
+			//-------------------------- Adminbiz(1)----------------------------
 			request.setAttribute("productList", productList); 
 			request.setAttribute("curDate", cf.curDate());
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/stockList.jsp"); 
 			rd.forward(request, response);
 			break;
@@ -184,6 +207,7 @@ public class AdminProc extends HttpServlet {
 			LOG.trace("재고 물품 확인");
 			String pCode = new String();
 			pDtoList = pDao.selectCategory(Character.toString(pCode.charAt(0)));
+			//-------------------------- Adminbiz(1)----------------------------
 			for(ProductDTO product : pDtoList) {
 				aDto = new AdminDTO();
 				aDto.setoQuantity(0); //출고수량이 없을 경우, 0으로 지정
@@ -197,8 +221,11 @@ public class AdminProc extends HttpServlet {
 				LOG.trace("제품 코드 :" + aDto.getpCode() + ", 제품 발주 수량 : "+ aDto.getsQuantity());
 				productList.add(aDto);
 			}
+			//-------------------------- Adminbiz(1)----------------------------
 			request.setAttribute("productList", productList); 
 			request.setAttribute("curDate", cf.curDate());
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/stockList.jsp");
 			rd.forward(request, response);
 			break;
@@ -219,6 +246,8 @@ public class AdminProc extends HttpServlet {
 			
 			request.setAttribute("selectMonth", cf.curMonth());
 			request.setAttribute("invoiceList", invoiceList);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			request.setAttribute("productTotalSales", productTotalSales);
 			rd = request.getRequestDispatcher("admin/monthlySell.jsp");
 			rd.forward(request, response);
@@ -240,6 +269,8 @@ public class AdminProc extends HttpServlet {
 			request.setAttribute("selectMonth", month);
 			request.setAttribute("invoiceList", invoiceList);
 			request.setAttribute("productTotalSales", productTotalSales);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/monthlySell.jsp");
 			rd.forward(request, response);
 			break;
@@ -262,6 +293,8 @@ public class AdminProc extends HttpServlet {
 			}
 			request.setAttribute("invoiceList", invoiceList);
 			request.setAttribute("invoiceTotalSales", invoiceTotalSales);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/permissionTrans.jsp");
 			rd.forward(request, response);
 			break;
@@ -282,6 +315,8 @@ public class AdminProc extends HttpServlet {
 			request.setAttribute("selectMonth", cf.curMonth());
 			request.setAttribute("invoiceList", invoiceList);
 			request.setAttribute("invoiceTotalSales", invoiceTotalSales);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/monthlyTrans.jsp");
 			rd.forward(request, response);
 			break;
@@ -303,6 +338,8 @@ public class AdminProc extends HttpServlet {
 			request.setAttribute("selectMonth", month);
 			request.setAttribute("invoiceList", invoiceList);
 			request.setAttribute("invoiceTotalSales", invoiceTotalSales);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/monthlyTrans.jsp");
 			rd.forward(request, response);
 			break;
@@ -315,6 +352,8 @@ public class AdminProc extends HttpServlet {
 				message = "처리 할 송장이 없습니다.";
 				request.setAttribute("message", message);
 				request.setAttribute("msgState", true);
+				request.setAttribute("userType",userType); 
+				request.setAttribute("userName",userName); 
 				rd = request.getRequestDispatcher("AdminProc?action=transPermissionList");
 				rd.forward(request, response);
 				break;
@@ -345,6 +384,8 @@ public class AdminProc extends HttpServlet {
 			message = "총 "+count+"건의 송장 처리가 완료되었습니다. <br> (재고 부족으로 인해 발송 못한 송장이 있을 수도 있습니다.)";
 			request.setAttribute("message", message);
 			request.setAttribute("msgState", true);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("AdminProc?action=transPermissionList");
 			rd.forward(request, response);
 			break;
@@ -358,6 +399,8 @@ public class AdminProc extends HttpServlet {
 			request.setAttribute("selectMonth", month);
 			request.setAttribute("supplyList", supplyList);
 			request.setAttribute("supplyTotalSales", supplyTotalSales);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/permissionSupply.jsp");
 			rd.forward(request, response);
 			break;
@@ -371,6 +414,8 @@ public class AdminProc extends HttpServlet {
 			request.setAttribute("selectMonth", cf.curMonth());
 			request.setAttribute("supplyList", supplyList);
 			request.setAttribute("supplyTotalSales", supplyTotalSales);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/monthlySupply.jsp");
 			rd.forward(request, response);
 			break;
@@ -384,6 +429,8 @@ public class AdminProc extends HttpServlet {
 			request.setAttribute("selectMonth", month);
 			request.setAttribute("supplyList", supplyList);
 			request.setAttribute("supplyTotalSales", supplyTotalSales);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("admin/monthlySupply.jsp");
 			rd.forward(request, response);
 			break;
@@ -396,6 +443,8 @@ public class AdminProc extends HttpServlet {
 				message = "처리 할 발주 리스트가 없습니다.";
 				request.setAttribute("message", message);
 				request.setAttribute("msgState", true);
+				request.setAttribute("userName",userName); 
+				request.setAttribute("userType",userType); 
 				rd = request.getRequestDispatcher("AdminProc?action=supplyPermissionList");
 				rd.forward(request, response);
 				break;
@@ -411,6 +460,8 @@ public class AdminProc extends HttpServlet {
 			message = "총 "+count+"건의 발주 처리가 완료되었습니다.";
 			request.setAttribute("message", message);
 			request.setAttribute("msgState", true);
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType); 
 			rd = request.getRequestDispatcher("AdminProc?action=supplyPermissionList");
 			rd.forward(request, response);
 			break;

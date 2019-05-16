@@ -142,6 +142,13 @@ public class CustomerFunction {
     	return curTime.format(dateTimeFormatter);
 	}
 	
+	//현재 시간을 구하는 함수
+	public String curTimeFormat() {
+		LocalDateTime curTime = LocalDateTime.now();
+    	DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");	
+    	return curTime.format(dateTimeFormatter);
+	}
+	
 	//현재 날짜를 구하는 함수
 	public String curDate() {
 		LocalDateTime curTime = LocalDateTime.now();

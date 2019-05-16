@@ -38,11 +38,21 @@ public class SupplyProc extends HttpServlet {
 		HttpSession session = request.getSession();
 		String message = new String();
 		RequestDispatcher rd;
+		//쿠키 사용시
+		String cookieId = new String();
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie: cookies) {
+			LOG.trace("쿠키 정보 : " + cookie.getName() +","+ cookie.getValue());
+			if (cookie.getName().equals("Blue"))
+				cookieId = cookie.getValue();
+		}
+		String userId = (String)session.getAttribute(cookieId+"userId");
+		int userType = (Integer)session.getAttribute(cookieId+"userType");
+		String userName = (String)session.getAttribute(cookieId+"userName");
 		
 		CustomerFunction cf = new CustomerFunction();
 		String curMonth = cf.curMonth();
 		String supplierCode = new String();
-		String userId = new String();
 		int monthTotalPrice = 0;
 		int count=0;
 
@@ -55,17 +65,18 @@ public class SupplyProc extends HttpServlet {
 		case "complete":
 			// complete를 하면 대기중(sState = 0)인 발주를 배송중(sState = 1)으로 만듬
 			LOG.trace("sProc.complete진입");
-			userId = (String)session.getAttribute("userId");
 			supplierCode = CustomerFunction.SupplierCode(userId);
 			sDtoLists = sDao.selectBeforeState(supplierCode);
 			for(SupplyDTO supply : sDtoLists) {
 				sDao.updateState(supply.getsCode());
 				count++;
 			}
-			
 			message = "총 "+count+" 건의 납품 승인 요청이 완료되었습니다.";
 			request.setAttribute("message", message);
 			request.setAttribute("msgState", true);
+			
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType);
 			rd = request.getRequestDispatcher("SupplyProc?action=supplyBeforeList");
 			rd.forward(request, response);
 			break;
@@ -73,7 +84,6 @@ public class SupplyProc extends HttpServlet {
 		case "supplyBeforeList":
 			LOG.trace("sProc.supplyBeforeList진입");
 			// 상태가 0,1 인 목록
-			userId = (String)session.getAttribute("userId");
 			supplierCode = CustomerFunction.SupplierCode(userId);
 			sDtoLists = sDao.selectBeforeAll(supplierCode);
 			int supplyTotalPrice =0;
@@ -82,6 +92,9 @@ public class SupplyProc extends HttpServlet {
 			}
 			request.setAttribute("supplyTotalPrice",supplyTotalPrice);
 			request.setAttribute("supplyList",sDtoLists);
+			
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType);
 			rd = request.getRequestDispatcher("supply/sBeforeSupply.jsp");
 			rd.forward(request, response);
 			break;
@@ -89,8 +102,6 @@ public class SupplyProc extends HttpServlet {
 		case "supplyAfterList":
 			// 상태가 2인 목록
 			LOG.trace("sProc.supplyAfterList진입");
-			userId = (String)session.getAttribute("userId");
-			LOG.trace("sProc.intoMain userID : " + userId);
 			supplierCode = CustomerFunction.SupplierCode(userId);
 			LOG.trace(supplierCode);
 			sDtoLists = sDao.selectAfterAll(supplierCode);
@@ -102,6 +113,8 @@ public class SupplyProc extends HttpServlet {
 			request.setAttribute("supplyList",sDtoLists);
 			request.setAttribute("selectMonth",cf.curMonth());
 			
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType);
 			rd = request.getRequestDispatcher("supply/sAfterSupply.jsp");
 			rd.forward(request, response);
 			break;
@@ -109,8 +122,6 @@ public class SupplyProc extends HttpServlet {
 		case "supplyAfterListSearch":
 			// 상태가 2인 목록(월검색)
 			LOG.trace("sProc.supplyAfterListSearch진입");
-			userId = (String)session.getAttribute("userId");
-			LOG.trace("sProc.intoMain userID : " + userId);
 			supplierCode = CustomerFunction.SupplierCode(userId);
 			LOG.trace(supplierCode);
 			String month = request.getParameter("month");
@@ -124,6 +135,9 @@ public class SupplyProc extends HttpServlet {
 			request.setAttribute("selectMonth", month);
 			request.setAttribute("supplyList",sDtoLists);
 			LOG.trace("sProc.sDtoLists : "+ sDtoLists);
+			
+			request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType);
 			rd = request.getRequestDispatcher("supply/sAfterSupply.jsp");
 			rd.forward(request, response);
 			break;
@@ -131,8 +145,6 @@ public class SupplyProc extends HttpServlet {
 		case "intoMain":
 			LOG.trace("sProc.intoMain진입");
 			//	변수
-			userId = (String)session.getAttribute("userId");
-			LOG.trace("sProc.intoMain변수 userID : " + userId);
 			supplierCode = CustomerFunction.SupplierCode(userId);
 			LOG.trace("SupplyProc.intoMain supplierCode : "+supplierCode);
 			int curMonthTotalSales = 0;
@@ -193,6 +205,9 @@ public class SupplyProc extends HttpServlet {
        		request.setAttribute("thisTotalSalesList", thisTotalSalesList); //5. 올해 월별 총 지불액
     		request.setAttribute("lastTotalSalesList", lastTotalSalesList); //5. 작년 월별 총 지불액
     		
+    		
+    		request.setAttribute("userName",userName); 
+			request.setAttribute("userType",userType);
     		rd = request.getRequestDispatcher("supply/supplierMain.jsp");
 			rd.forward(request, response);
 			break;

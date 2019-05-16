@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,6 +44,17 @@ public class TransProc extends HttpServlet {
 			String action = request.getParameter("action");
 			String message = new String();
 			CustomerFunction cf = new CustomerFunction();
+			//쿠키 사용시 
+			String cookieId = new String();
+			Cookie[] cookies = request.getCookies();
+			for (Cookie cookie: cookies) {
+				LOG.trace("쿠키 정보 : " + cookie.getName() +","+ cookie.getValue());
+				if (cookie.getName().equals("Blue"))
+					cookieId = cookie.getValue();
+			}
+			String userId = (String)session.getAttribute(cookieId+"userId");
+			int userType = (Integer)session.getAttribute(cookieId+"userType");
+			String userName = (String)session.getAttribute(cookieId+"userName");
 			
 			//DTO,DAO 관련 변수
 			InvoiceDAO iDao = new InvoiceDAO();
@@ -51,10 +63,6 @@ public class TransProc extends HttpServlet {
 			List<InvoiceDTO> iDtoLists = new ArrayList<InvoiceDTO>();
 	    	List<OrderDTO> oDtoLists = new ArrayList<OrderDTO>();
 	    	SupplyDAO sDao = new SupplyDAO();
-	    	
-	    	//session 변수
-	    	String userId = (String)session.getAttribute("userId");
-	    	LOG.trace("[쇼핑몰 Proc] 사용자 ID : " + userId);
 			
 	    	//일반 변수
 	    	String iCode = new String(); //송장번호를 받는 변수
@@ -111,6 +119,9 @@ public class TransProc extends HttpServlet {
 	    		
 	    		request.setAttribute("thisTotalSalesList", thisTotalSalesList); //5. 월별 총 지불액
 	    		request.setAttribute("lastTotalSalesList", lastTotalSalesList); //5. 월별 총 지불액
+	    		
+	    		request.setAttribute("userName",userName); 
+				request.setAttribute("userType",userType);
 	    		rd = request.getRequestDispatcher("transfer/transMain.jsp");
 				rd.forward(request, response);
 	    		break;
@@ -120,6 +131,9 @@ public class TransProc extends HttpServlet {
 	    		LOG.trace("[운송사 Proc] 일별 배송 목록");
 				iDtoLists = iDao.transSearchAllDay(userId,cf.curDate()); //쇼핑몰의 코드를 통해 오늘 날짜의 송장 목록을 가져온다.
 				request.setAttribute("invoiceLists", iDtoLists);
+				
+				request.setAttribute("userName",userName); 
+				request.setAttribute("userType",userType);
 				rd = request.getRequestDispatcher("transfer/invoiceDayList.jsp"); //쇼핑몰 일별 리스트 화면으로 송장 리스트를 던져준다.
 				rd.forward(request, response);
 				break;
@@ -129,6 +143,9 @@ public class TransProc extends HttpServlet {
 	    		LOG.trace("[운송사 Proc] 월별 배송 목록");
 				iDtoLists = iDao.transSearchAllMonth(userId,cf.curMonth()); //쇼핑몰의 코드를 통해 오늘 날짜의 송장 목록을 가져온다.
 				request.setAttribute("invoiceLists", iDtoLists);
+				
+				request.setAttribute("userName",userName); 
+				request.setAttribute("userType",userType);
 				rd = request.getRequestDispatcher("transfer/invoiceMonthList.jsp"); //쇼핑몰 일별 리스트 화면으로 송장 리스트를 던져준다.
 				rd.forward(request, response);
 				break;
@@ -140,6 +157,9 @@ public class TransProc extends HttpServlet {
 				iDtoLists = iDao.transSearchAllDay(userId, date); //쇼핑몰의 코드와 날짜를 통해 이번 월의 송장목록을 가져온다.
 				request.setAttribute("selectDate", date); //날짜를 표시하기위해 다시 던져준다.
 				request.setAttribute("invoiceLists", iDtoLists);
+				
+				request.setAttribute("userName",userName); 
+				request.setAttribute("userType",userType);
 				rd = request.getRequestDispatcher("transfer/invoiceDayList.jsp"); //쇼핑몰의 하루 리스트 화면으로 송장 리스트를 던져준다.
 				rd.forward(request, response);
 				break;
@@ -151,6 +171,9 @@ public class TransProc extends HttpServlet {
 				iDtoLists = iDao.transSearchAllMonth(userId, month); //쇼핑몰의 코드와 날짜를 통해 이번 월의 송장목록을 가져온다.
 				request.setAttribute("selectDate", month); //날짜를 표시하기위해 다시 던져준다.
 				request.setAttribute("invoiceLists", iDtoLists);
+				
+				request.setAttribute("userName",userName); 
+				request.setAttribute("userType",userType);
 				rd = request.getRequestDispatcher("transfer/invoiceMonthList.jsp"); //쇼핑몰의 하루 리스트 화면으로 송장 리스트를 던져준다.
 				rd.forward(request, response);
 				break;
@@ -171,6 +194,9 @@ public class TransProc extends HttpServlet {
 				request.setAttribute("invoiceTotalPrice", totalProductPrice);
 				request.setAttribute("invoice", iDto);
 				request.setAttribute("orderLists", oDtoLists);
+				
+				request.setAttribute("userName",userName); 
+				request.setAttribute("userType",userType);
 				rd = request.getRequestDispatcher("transfer/invoiceDetailList.jsp");
 				rd.forward(request, response);
 				
@@ -224,6 +250,9 @@ public class TransProc extends HttpServlet {
 				message = "총"+count+" 건의 출고 처리가 완료되었습니다.";
 				request.setAttribute("message", message);
 				request.setAttribute("msgState", true);
+				
+				request.setAttribute("userName",userName); 
+				request.setAttribute("userType",userType);
 				rd = request.getRequestDispatcher("TransProc?action=transInvoiceListDay");
 				rd.forward(request, response);
 				break;
