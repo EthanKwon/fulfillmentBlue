@@ -42,7 +42,7 @@
 
 <root>
 	<!-- 이곳에서 레벨을 조정합니다. -->
-	<level value ="TRACE"/> 
+	<level value ="DEBUG"/> 
 	<!--                             -->
 	
 	<appender-ref ref="stdout"/>

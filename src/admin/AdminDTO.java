@@ -146,6 +146,91 @@ public class AdminDTO {
 			break;
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((iCode == null) ? 0 : iCode.hashCode());
+		result = prime * result + ((iDate == null) ? 0 : iDate.hashCode());
+		result = prime * result + ((iState == null) ? 0 : iState.hashCode());
+		result = prime * result + iTotalPrice;
+		result = prime * result + oQuantity;
+		result = prime * result + ((pCode == null) ? 0 : pCode.hashCode());
+		result = prime * result + ((pName == null) ? 0 : pName.hashCode());
+		result = prime * result + pPrice;
+		result = prime * result + pQuantity;
+		result = prime * result + ((sCode == null) ? 0 : sCode.hashCode());
+		result = prime * result + ((sDate == null) ? 0 : sDate.hashCode());
+		result = prime * result + sQuantity;
+		result = prime * result + sTotalPrice;
+		result = prime * result + ((uName == null) ? 0 : uName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AdminDTO other = (AdminDTO) obj;
+		if (iCode == null) {
+			if (other.iCode != null)
+				return false;
+		} else if (!iCode.equals(other.iCode))
+			return false;
+		if (iDate == null) {
+			if (other.iDate != null)
+				return false;
+		} else if (!iDate.equals(other.iDate))
+			return false;
+		if (iState == null) {
+			if (other.iState != null)
+				return false;
+		} else if (!iState.equals(other.iState))
+			return false;
+		if (iTotalPrice != other.iTotalPrice)
+			return false;
+		if (oQuantity != other.oQuantity)
+			return false;
+		if (pCode == null) {
+			if (other.pCode != null)
+				return false;
+		} else if (!pCode.equals(other.pCode))
+			return false;
+		if (pName == null) {
+			if (other.pName != null)
+				return false;
+		} else if (!pName.equals(other.pName))
+			return false;
+		if (pPrice != other.pPrice)
+			return false;
+		if (pQuantity != other.pQuantity)
+			return false;
+		if (sCode == null) {
+			if (other.sCode != null)
+				return false;
+		} else if (!sCode.equals(other.sCode))
+			return false;
+		if (sDate == null) {
+			if (other.sDate != null)
+				return false;
+		} else if (!sDate.equals(other.sDate))
+			return false;
+		if (sQuantity != other.sQuantity)
+			return false;
+		if (sTotalPrice != other.sTotalPrice)
+			return false;
+		if (uName == null) {
+			if (other.uName != null)
+				return false;
+		} else if (!uName.equals(other.uName))
+			return false;
+		return true;
+	}
 	
 	
 	
