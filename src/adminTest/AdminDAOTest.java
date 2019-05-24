@@ -1,14 +1,18 @@
 package adminTest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-public class AdminDAOTest {
+import admin.AdminDAO;
 
+public class AdminDAOTest {
+	private AdminDAO aDao = new AdminDAO();
+	
 	@Test
-	public void testSelectThisMonth() {
-		fail("Not yet implemented");
+	public void notNullSelectThisMonth() {
+		assertNotNull(aDao.selectThisMonth());
 	}
+	
 
 }

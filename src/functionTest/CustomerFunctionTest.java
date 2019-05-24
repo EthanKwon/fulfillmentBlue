@@ -21,11 +21,13 @@ public class CustomerFunctionTest {
 		assertEquals("1area",cf.iAreaCode("경기도"));
 	}
 	
+	//송장번호 생성 메소드 테스트
 	@Test
 	public void iCodeProc() {
 		assertEquals("10001a1190523",cf.iCodeProc("aShop", "1area"));
 	}
 	
+	//제품번호 생성 메소드 테스트
 	@Test
 	public void sCodeCreate() {
 		assertEquals("A190523101",cf.sCodeCreate("A101"));
